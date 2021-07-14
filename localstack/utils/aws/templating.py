@@ -19,6 +19,8 @@ class VelocityInput(object):
         if not self.value:
             return {}
         value = self.value if isinstance(self.value, dict) else json.loads(self.value)
+        if path == '$':
+            path = '$.body'
         return extract_jsonpath(value, path)
 
     def json(self, path):
@@ -58,6 +60,13 @@ class VelocityUtil(object):
 
     def escapeJavaScript(self, s):
         return str(str(s).replace('"', r"\"")).replace("'", r"\'")
+
+class VelocityNull(object):
+    def isNull(self, obj):
+        if type(obj) == list:
+            return len(obj) == 0
+        else:
+            return obj == None
 
 
 def render_velocity_template(template, context, variables={}, as_json=False):
@@ -137,6 +146,7 @@ def render_velocity_template(template, context, variables={}, as_json=False):
     var_map = {
         "input": VelocityInput(context),
         "util": VelocityUtil(),
+        "null": VelocityNull(),
         "context": context_var,
     }
     var_map.update(variables or {})
