@@ -248,16 +248,12 @@ def apply_template(integration, req_res_type, original_data, path_params={}, que
     templateStatus = None
     if integration_type.upper() in ["HTTP", "AWS"]:
         if req_res_type == "response":
-            LOG.info("Response template")
-            LOG.info(original_data.content)
             try:
                 data = json.loads(original_data.content)
             except:
                 pass
             try:
                 status = original_data.status_code
-                LOG.info("Original Status: %s" % str(status))
-                # apply custom request template
                 responses = integration.get("integrationResponses")
                 integration_response = None
                 for code in responses.keys():
@@ -289,7 +285,6 @@ def apply_template(integration, req_res_type, original_data, path_params={}, que
             template = integration.get("%sTemplates" % req_res_type, {}).get(APPLICATION_JSON)
 
         if template:
-            LOG.info("Template Found!!!")
             context = {}
             context["body"] = data
 
@@ -312,7 +307,6 @@ def apply_template(integration, req_res_type, original_data, path_params={}, que
             if templateStatus:
                 original_data.status_code=templateStatus
             return original_data
-        LOG.info(data)
     return data
 
 
@@ -684,7 +678,6 @@ def invoke_rest_api_integration_backend(
 
                 if response_template is None:
                     msg = "Invalid response template defined in integration response."
-                    LOG.info("%s Existing: %s" % (msg, response_templates))
                     return make_error_response(msg, 404)
 
                 response_template = json.loads(response_template)
